@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Dragon Trainer Monthly</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<style type="text/css">
+			body {
+				margin: 0 auto;
+				max-width: 40em;
+				width: 88%;
+			}
+		</style>
+	</head>
+	<body>
+
+		<h1>Dragon Trainer Monthly</h1>
+
+		<div id="app"></div>
+
+		<script>
+			// 
+			// Variables 
+			// 
+			
+			let app = document.querySelector('#app');
+
+			//
+			// Functions
+			//
+
+			/**
+			 * Sanitize and encode all HTML in a user-submitted string
+			 * https://portswigger.net/web-security/cross-site-scripting/preventing
+			 * @param  {String} str  The user-submitted string
+			 * @return {String} str  The sanitized string
+			 */
+			function sanitizeHTML (str) {
+				return str.replace(/javascript:/gi, '').replace(/[^\w-_. ]/gi, function (c) {
+					return `&#${c.charCodeAt(0)};`;
+				});
+			}
+
+			/**
+			 * Find the first matching author
+			 * @param  {String} name    The author name
+			 * @param  {Array}  authors The author details
+			 * @return {Array}          The author
+			 */
+			function getAuthor (name, authors) {
+				return authors.find(function (author) {
+					return author.author === name;
+				});
+			}
+
+			function renderHtml(articles, authors) {
+				app.innerHTML = articles.map(function (item) {
+					let author = getAuthor(item.author, authors);
+					return `<details>
+								<summary><strong>${sanitizeHTML(item.title)}</strong></summary>
+								<p>${sanitizeHTML(item.article)}</p>
+								<p><em>By ${sanitizeHTML(author ? `${author.author} - ${author.bio}` : article.author)}</em></p>
+							</details>`;
+				}).join('');
+			}
+
+			function renderFail() {
+				app.innerHTML = '<em>Oops something went wrong, please try again later.</em>';
+			}
+
+			Promise.all([
+				fetch('https://vanillajsacademy.com/api/dragons.json'),
+				fetch('https://vanillajsacademy.com/api/dragons-authors.json')
+			]).then(function (responses) {
+				// Get a JSON object from each of the responses
+				return Promise.all(responses.map(function (response) {
+					return response.json();
+				}));
+			}).then(function (data) {
+				// You would do something with both sets of data here
+				// data[0] is the /posts endpoint
+				// data[1] is the /users endpoint
+				
+				renderHtml(data[0].articles, data[1].authors);
+
+			}).catch(function (error) {
+				// if there's an error, log it
+				console.log(error);
+			});
+
+		</script>
+	</body>
+</html>
