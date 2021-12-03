@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Notebook</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<style type="text/css">
+			body {
+				margin: 0 auto;
+				max-width: 40em;
+				width: 88%;
+			}
+
+			label,
+			textarea {
+				display: block;
+				width: 100%;
+			}
+
+			label {
+				margin-bottom: 0.5em;
+			}
+
+			textarea {
+				min-height: 70vh;
+			}
+		</style>
+	</head>
+	<body>
+
+		<h1>Notebook</h1>
+
+		<form id="notebook">
+			<label for="title">Title</label>
+			<input type="text" id="title" name="title">
+
+			<label for="note">Your note</label>
+			<textarea id="note" name="note"></textarea>
+
+			<p><button>Save Your Note</button></p>
+		</form>
+
+		<p><button data-remove>Remove Note</button></p>
+
+
+		<script>
+			//
+			// Variables
+			//
+			
+			let form = document.querySelector('#notebook');
+			let removeButton = document.querySelector('[data-remove]');
+			let myDataKey = 'wb-note-app-2';
+
+
+			//
+			// Functions
+			//
+
+			/*!
+			 * Serialize all form data into an object
+			 * (c) 2021 Chris Ferdinandi, MIT License, https://gomakethings.com
+			 * @param  {FormData} data The FormData object to serialize
+			 * @return {String}        The serialized form data
+			 */
+			function serialize (data) {
+				let obj = {};
+				for (let [key, value] of data) {
+					if (obj[key] !== undefined) {
+						if (!Array.isArray(obj[key])) {
+							obj[key] = [obj[key]];
+						}
+						obj[key].push(value);
+					} else {
+						obj[key] = value;
+					}
+				}
+				return obj;
+			}
+
+			// Show a status message
+			function showStatus () {
+
+				// Create a notification
+				let notification = document.createElement('div');
+				notification.setAttribute('aria-live', 'polite');
+
+				// Inject it into the DOM
+				form.append(notification);
+
+				// Add text after it's in the UI
+				setTimeout(function () {
+					notification.textContent = 'Your note was saved!';
+				}, 1);
+
+				// Remove it after 4 seconds
+				setTimeout(function () {
+					notification.remove();
+				}, 4000);
+
+			}
+
+			// Get note from local storage
+			function getNote() {
+				// Get data
+				let savedData = JSON.parse(localStorage.getItem(myDataKey));
+				if (!savedData) return;
+
+
+				// My solution
+				// for (let [key, value] of Object.entries(savedData)) {
+				// 	document.querySelector('#' + key).value = value;
+				// }
+
+				// Chris solution
+			
+				// Get form elements
+				let fields = notebook.elements;
+
+				// Loop through each one and load data
+				for (let field of fields) {
+
+					// If there's no saved data, skip it
+					if (!savedData[field.name]) continue;
+
+					// Set the field value to the saved data in localStorage
+					field.value = savedData[field.name];
+
+				}
+
+			}
+
+			function removeNote() {
+				// Remove data
+				localStorage.removeItem(myDataKey);
+				location.reload();
+			}
+
+
+			//
+			// Inits & Event Listeners
+			//
+
+			removeButton.addEventListener('click', removeNote);
+
+			form.addEventListener('submit', function(event) {
+				event.preventDefault();
+
+				// Get all field data from the form
+				// returns a FormData object
+				let data = serialize(new FormData(form));
+
+				// Store data
+				localStorage.setItem(myDataKey, JSON.stringify(data));
+
+				showStatus();
+
+			});
+
+			getNote();
+
+		</script>
+	</body>
+</html>

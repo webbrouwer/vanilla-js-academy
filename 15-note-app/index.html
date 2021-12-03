@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Notebook</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<style type="text/css">
+			body {
+				margin: 0 auto;
+				max-width: 40em;
+				width: 88%;
+			}
+
+			label,
+			textarea {
+				display: block;
+				width: 100%;
+			}
+
+			label {
+				margin-bottom: 0.5em;
+			}
+
+			textarea {
+				min-height: 70vh;
+			}
+		</style>
+	</head>
+	<body>
+
+		<h1>Notebook</h1>
+
+		<form id="notebook">
+			<label for="note">Your note</label>
+			<textarea id="note"></textarea>
+
+			<p><button>Save Your Note</button></p>
+		</form>
+
+		<p><button data-remove>Remove Note</button></p>
+
+
+		<script>
+			//
+			// Variables
+			//
+			
+			let form = document.querySelector('#notebook');
+			let data = document.querySelector('#note');
+			let removeButton = document.querySelector('[data-remove]');
+			let myDataKey = 'wb-note-app-1';
+
+
+			//
+			// Functions
+			//
+
+			// Show a status message
+			function showStatus () {
+
+				// Create a notification
+				let notification = document.createElement('div');
+				notification.setAttribute('aria-live', 'polite');
+
+				// Inject it into the DOM
+				form.append(notification);
+
+				// Add text after it's in the UI
+				setTimeout(function () {
+					notification.textContent = 'Your note was saved!';
+				}, 1);
+
+				// Remove it after 4 seconds
+				setTimeout(function () {
+					notification.remove();
+				}, 4000);
+
+			}
+
+			// Get note from local storage
+			function getNote() {
+				// Get data
+				let savedData = localStorage.getItem(myDataKey);
+				if (!savedData) return;
+				data.value = savedData;
+			}
+
+			function removeNote() {
+				// Remove data
+				localStorage.removeItem(myDataKey);
+				data.value = '';
+			}
+
+
+			//
+			// Inits & Event Listeners
+			//
+
+			removeButton.addEventListener('click', removeNote);
+
+			form.addEventListener('submit', function(event) {
+				event.preventDefault();
+
+				if(!data.value) return;
+
+				// Store data
+				localStorage.setItem(myDataKey, data.value);
+
+				showStatus();
+
+			});
+
+			getNote();
+
+		</script>
+	</body>
+</html>

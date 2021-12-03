@@ -1,0 +1,41 @@
+<form>
+	<label for="current-pw">Current Password</label>
+	<input type="password" id="current-pw">
+
+	<label for="new-pw">New Password</label>
+	<input type="password" id="new-pw">
+
+	<button>Change Password</button>
+
+	<div id="notification" aria-live="polite"></div>
+</form>
+
+<script>
+
+	// Get the form
+	let form = document.querySelector('form');	
+
+	// Show a status message
+	function showStatus () {
+
+		// Create a notification
+		let notification = document.createElement('div');
+		notification.setAttribute('aria-live', 'polite');
+
+		// Inject it into the DOM
+		form.append(notification);
+
+		// Add text after it's in the UI
+		setTimeout(function () {
+			notification.textContent = 'Your password was updated!';
+		}, 1);
+
+		// Remove it after 4 seconds
+		setTimeout(function () {
+			notification.remove();
+		}, 4000);
+
+	}	
+
+	showStatus();
+</script>
